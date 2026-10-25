@@ -1,15 +1,16 @@
-// Licensed under the Dartastic Pro Software License Agreement.
+// Licensed under the Apache License, Version 2.0
 // Copyright 2025-2026 Mindful Software LLC d/b/a Dartastic.io, All rights reserved.
 
-import 'package:dartastic_opentelemetry/dartastic_opentelemetry.dart';
+import 'package:dartastic_opentelemetry_api/dartastic_opentelemetry_api.dart';
 
 import 'otel_drata_suppression.dart';
 
 const _tracerName = 'dartastic_otel_libs_drata';
 
-Tracer _tracer() => OTel.tracerProvider().getTracer(_tracerName);
+APITracer _tracer() => OTelAPI.tracerProvider().getTracer(_tracerName);
 
 class DrataResult {
+  /// Creates a result.
   const DrataResult({
     this.workspaceId,
     this.frameworkSlug,
@@ -75,8 +76,13 @@ class DrataResult {
   final int? statusCode;
 }
 
+/// What a traced call returned: the value for the caller plus fields
+/// recorded on the span.
 class DrataCallResult<T> {
+  /// Creates a call result.
   const DrataCallResult({required this.value, this.result});
+
+  /// The value returned to the caller.
   final T value;
   final DrataResult? result;
 }
@@ -103,44 +109,44 @@ Future<T> tracedDrata<T>({
   final span = _tracer().startSpan(
     'drata $operation',
     kind: SpanKind.client,
-    attributes: OTel.attributesFromMap(m),
+    attributes: OTelAPI.attributesFromMap(m),
   );
   try {
     final r = await invoke();
     if (r.result != null) {
       final extras = <Attribute<Object>>[];
       if (r.result!.workspaceId != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'drata.workspace.id',
           r.result!.workspaceId!,
         ));
       }
       if (r.result!.frameworkSlug != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'drata.framework.slug',
           r.result!.frameworkSlug!,
         ));
       }
       if (r.result!.controlId != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'drata.control.id',
           r.result!.controlId!,
         ));
       }
       if (r.result!.requirementId != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'drata.requirement.id',
           r.result!.requirementId!,
         ));
       }
       if (r.result!.monitorId != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'drata.monitor.id',
           r.result!.monitorId!,
         ));
       }
       if (r.result!.monitorStatus != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'drata.monitor.status',
           r.result!.monitorStatus!,
         ));
@@ -149,61 +155,61 @@ Future<T> tracedDrata<T>({
         }
       }
       if (r.result!.assetKind != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'drata.asset.kind',
           r.result!.assetKind!,
         ));
       }
       if (r.result!.assetId != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'drata.asset.id',
           r.result!.assetId!,
         ));
       }
       if (r.result!.ownerEmail != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'drata.owner.email',
           r.result!.ownerEmail!,
         ));
       }
       if (r.result!.severity != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'drata.severity',
           r.result!.severity!,
         ));
       }
       if (r.result!.failingAssets != null) {
-        extras.add(OTel.attributeInt(
+        extras.add(OTelAPI.attributeInt(
           'drata.failing.assets',
           r.result!.failingAssets!,
         ));
       }
       if (r.result!.passingAssets != null) {
-        extras.add(OTel.attributeInt(
+        extras.add(OTelAPI.attributeInt(
           'drata.passing.assets',
           r.result!.passingAssets!,
         ));
       }
       if (r.result!.snoozeUntilSec != null) {
-        extras.add(OTel.attributeInt(
+        extras.add(OTelAPI.attributeInt(
           'drata.snooze.until_sec',
           r.result!.snoozeUntilSec!,
         ));
       }
       if (r.result!.evidenceId != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'drata.evidence.id',
           r.result!.evidenceId!,
         ));
       }
       if (r.result!.integrationKey != null) {
-        extras.add(OTel.attributeString(
+        extras.add(OTelAPI.attributeString(
           'drata.integration.key',
           r.result!.integrationKey!,
         ));
       }
       if (r.result!.statusCode != null) {
-        extras.add(OTel.attributeInt(
+        extras.add(OTelAPI.attributeInt(
           'http.response.status_code',
           r.result!.statusCode!,
         ));
@@ -214,13 +220,13 @@ Future<T> tracedDrata<T>({
           );
         }
       }
-      if (extras.isNotEmpty) span.addAttributes(OTel.attributes(extras));
+      if (extras.isNotEmpty) span.addAttributes(OTelAPI.attributes(extras));
     }
     return r.value;
   } catch (e, st) {
-    span.addAttributes(OTel.attributes([
-      OTel.attributeString(
-        ErrorResource.errorType.key,
+    span.addAttributes(OTelAPI.attributes([
+      OTelAPI.attributeString(
+        ErrorAttributes.errorType.key,
         e.runtimeType.toString(),
       ),
     ]));
